@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Tvisaa - Handcrafted Luxury Jewelry</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#150f08",
+                        "primary-container": "#2b241c",
+                        "secondary": "#735b31",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fdf9f2",
+                        "surface-container-low": "#f7f3ec",
+                        "surface-container-high": "#ebe8e1",
+                        "on-surface": "#1c1c18",
+                        "on-surface-variant": "#4c463f",
+                        "outline": "#7e766e",
+                        "outline-variant": "#cfc5bc",
+                        "error": "#ba1a1a"
+                    },
+                    borderRadius: {
+                        "lg": "0.5rem"
+                    },
+                    spacing: {
+                        "stack-lg": "80px",
+                        "stack-md": "40px",
+                        "stack-sm": "16px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "container-max": "1280px"
+                    },
+                    fontFamily: {
+                        "display": ["Playfair Display", "serif"],
+                        "body": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-display { font-family: 'Playfair Display', serif; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: currentColor;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; border-bottom: 1px solid rgba(43,36,28,0.1); border-top: 1px solid rgba(43,36,28,0.1); padding: 20px 0; }
+        .marquee-content { display: inline-block; animation: marquee 30s linear infinite; }
+        .marquee-item { display: inline-block; padding: 0 4rem; font-family: 'Playfair Display', serif; font-size: 2rem; color: #2b241c; opacity: 0.7; }
+        @keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+        
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface text-primary antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Components ---
+
+        const TopNavBar = ({ suppressed = false }) => {
+            if (suppressed) return (
+                <header className="fixed top-0 w-full z-50 bg-surface-container-low/85 backdrop-blur-md h-20 border-b border-outline-variant/30">
+                    <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-full w-full max-w-container-max mx-auto">
+                        <Link to="/" className="text-xs uppercase tracking-widest text-on-surface-variant flex items-center gap-2 group">
+                            <span className="material-symbols-outlined text-[16px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                            Home
+                        </Link>
+                        <Link to="/" className="font-display text-2xl tracking-tighter text-primary">Tvisaa</Link>
+                        <div className="w-20"></div>
+                    </div>
+                </header>
+            );
+
+            return (
+                <nav className="bg-surface/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-outline-variant/30 flex justify-between items-center px-margin-mobile md:px-margin-desktop py-6 transition-all duration-300">
+                    <div className="hidden md:flex items-center gap-gutter">
+                        <Link className="text-[13px] uppercase tracking-widest text-on-surface-variant hover:text-secondary nav-link" to="/collections">Collections</Link>
+                        <a className="text-[13px] uppercase tracking-widest text-on-surface-variant hover:text-secondary nav-link" href="#">Bespoke</a>
+                        <a className="text-[13px] uppercase tracking-widest text-on-surface-variant hover:text-secondary nav-link" href="#">Atelier</a>
+                    </div>
+                    <Link className="font-display text-2xl absolute left-1/2 -translate-x-1/2" to="/">Tvisaa</Link>
+                    <div className="flex items-center gap-6">
+                        <Link to="/login" className="text-on-surface-variant hover:text-secondary"><span className="material-symbols-outlined">person</span></Link>
+                        <Link to="/cart" className="text-on-surface-variant hover:text-secondary relative">
+                            <span className="material-symbols-outlined">shopping_bag</span>
+                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></span>
+                        </Link>
+                    </div>
+                </nav>
+            );
+        };
+
+        const Footer = ({ suppressed = false }) => {
+            if (suppressed) return (
+                <footer className="w-full py-8 border-t border-outline-variant mt-auto bg-surface-container-low">
+                    <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
+                        <span className="text-[12px] text-outline uppercase tracking-widest">© 2024 Tvisaa. Secure Checkout.</span>
+                    </div>
+                </footer>
+            );
+
+            return (
+                <footer className="bg-surface-container-low w-full border-t border-outline-variant flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-md mt-auto gap-8">
+                    <div className="font-display text-2xl text-primary">Tvisaa</div>
+                    <div className="text-sm text-on-surface-variant text-center md:text-left">© 2024 Tvisaa. Handcrafted Excellence.</div>
+                    <div className="flex flex-wrap justify-center gap-6 text-sm">
+                        <a className="text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy</a>
+                        <a className="text-on-surface-variant hover:text-secondary transition-colors" href="#">Terms</a>
+                        <a className="text-on-surface-variant hover:text-secondary transition-colors" href="#">Shipping</a>
+                    </div>
+                </footer>
+            );
+        };
+
+        // --- Pages ---
+
+        const HomePage = () => {
+            return (
+                <div className="flex flex-col min-h-screen pt-20">
+                    <TopNavBar />
+                    <section className="relative h-[870px] w-full bg-surface-container-high overflow-hidden flex items-end">
+                        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat w-full h-full" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuASfUjFWrX_TfJz5E91zkFJQKVUJPnO3BkUPZb8S5STx9Pl0UPWZGHpEsgJ-X9Tdtupor0vaV5RoQG_PwOlb13k5L1tHVtWkCL6iyEoHNNvUEV_Xk-wLeknPCt2h27qDf21G_lUhO3yU-MGWGZ7iq8G7OTOY2tI1HRa9xVmoL04xZb9ZnKfmXU3GIooY8TecVLu8iAXdxOyRVcbDSgNdl8wBIleTZ1IrvKclOZ6H1Xfpj1G2yXBB2lDSQ')"}}></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-surface-container-low/60 to-transparent"></div>
+                        <div className="relative z-10 w-full px-margin-desktop max-w-container-max mx-auto pb-16">
+                            <div className="max-w-2xl">
+                                <h1 className="font-display text-5xl md:text-6xl text-primary mb-8 tracking-wider">The Art of Refinement</h1>
+                                <Link className="inline-block px-8 py-4 border border-primary uppercase tracking-widest text-primary hover:bg-primary hover:text-surface transition-all duration-300" to="/collections">SHOP THE COLLECTION</Link>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section className="marquee-container bg-white">
+                        <div className="marquee-content">
+                            <span className="marquee-item">TVISAA</span><span className="marquee-item">TVISAA</span><span className="marquee-item">TVISAA</span><span className="marquee-item">TVISAA</span>
+                            <span className="marquee-item">TVISAA</span><span className="marquee-item">TVISAA</span><span className="marquee-item">TVISAA</span><span className="marquee-item">TVISAA</span>
+                        </div>
+                    </section>
+
+                    <section className="py-stack-lg px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto">
+                        <div className="flex justify-between items-end mb-stack-md">
+                            <h2 className="font-display text-3xl">Curated Essentials</h2>
+                            <Link to="/collections" className="text-xs underline tracking-widest uppercase">View All</Link>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+                            {[1, 2, 3, 4].map(i => (
+                                <Link key={i} to="/product/lumina" className="group flex flex-col gap-4">
+                                    <div className="aspect-[3/4] bg-surface-container-high overflow-hidden">
+                                        <img src={`https://lh3.googleusercontent.com/aida-public/AB6AXuDT-xIERYhb5iAp0dt4bZUcBW-Fc_ymVjrwVq4l8Zvq2Tj6-RJaPnw3DFifzO6iLLAufUOKQerm11GheKoc89D71viHFv7GswceKp3_-28JqeSmc6pptoNe7xrgXl442gA-i4rrIeTeP2fYTm037lkr8Ilnb3ENtAqiyi2iQRyiIUW6dmA3GWdLHxcsc7pg6w_BugZYBlo_lQFzjl4ObgALhTjdbXeFzXeAkGXr7MVTndLeIm-tAgfC9A`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Product" />
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs uppercase tracking-widest">Heritage Pendant {i}</span>
+                                        <span className="text-sm">$1,250</span>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="border-y border-outline-variant bg-white">
+                        <div className="grid grid-cols-2 md:grid-cols-4 w-full">
+                            {['water_drop', 'shield', 'spa', 'local_shipping'].map((icon, idx) => (
+                                <div key={idx} className="flex flex-col items-center justify-center p-12 border-outline-variant border-r last:border-r-0">
+                                    <span className="material-symbols-outlined text-3xl mb-6">{icon}</span>
+                                    <span className="text-[10px] md:text-xs uppercase tracking-widest text-center">Premium Detail</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const CollectionsPage = () => {
+            const products = [
+                { id: 'aura', name: 'Aura Pendant', price: '$1,250', img1: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCPBQyGmUfsGgEWM6PtWeKDWt-dvGgfhLX9bm4UmFKzNDT2ysxCWDxUUwxM9MIYjwb9SKQ5YWNCRJA59fcZvbsrDMTgog6J0V8GcX5T4gbcoptomUf_2yOQY6NGeX2h6A5L-ugk_UdOzd4TYojRK29jJDnrEPJ2YNJZF59j17ow16rwGCg9VsxLPh9ZexLepSGq8Ou-3Cp1h2629Z9TLfl_btHILikU775cQzsTaqx_wZwBysKPElSkuQ' },
+                { id: 'structural', name: 'Structural Cuff', price: '$890', img1: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAoVEZcWcQQiuZEbz-CpBIAXO0-lxn0kQIFfSmgG1C1f0QSZk45xRfxzVQINj2l5sSL9OeDmVlznf3TOdYgl3dYuufGnr8-V7phRfNWATXT0W2Ut-l3TFAIwaCPjEp89t-wxy0EGOULOsPjkRbdK7v8OVYC5L3f2D_PDX1Gwno_pu2WDjPMouvfXE6BEM3uNtuN08GQDvJuZ_wflOe0m_fDfzhR6CJ-Eo2ZxjWOEiNpxaGjEF1lsn2loQ' },
+                { id: 'blank', name: 'Blank Signet', price: '$650', img1: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCapVNDhymCbrQwEqVP8HLIXtlasN8Kf6ysO50g8fcBpcD3gdV71zKbXrlVxM3_b6s2EvW43t9d8v32hFcTKHMH5dSMMReEQJN2-K5dJ4kotFpOpvDY9RDkdTVG-mbEKlA80jxUpOPiF8ao8j1J047BnLhsjGYgUcwwekZIegS3irtGPkBFmJ_i0kucfJfv227j7JW93uMw-66cY2OsAgaTONvy79LHmX-Ad6jk9A4V4C_YouQOJB3Vcg' }
+            ];
+
+            return (
+                <div className="flex flex-col min-h-screen pt-20">
+                    <TopNavBar />
+                    <main className="flex-grow pt-10 pb-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
+                        <div className="text-center mb-stack-lg">
+                            <h1 className="font-display text-4xl md:text-5xl mb-stack-sm">The Heritage Collection</h1>
+                            <p className="text-on-surface-variant max-w-2xl mx-auto">Discover timeless elegance forged in precious metals. A curation designed to transcend seasons.</p>
+                        </div>
+                        <div className="flex justify-between items-center border-y border-outline/20 py-4 mb-stack-lg">
+                            <div className="flex gap-4 items-center">
+                                <span className="text-[10px] uppercase tracking-widest text-outline">Filter:</span>
+                                <button className="text-xs uppercase flex items-center gap-1">Category <span className="material-symbols-outlined text-[14px]">expand_more</span></button>
+                            </div>
+                            <button className="text-xs uppercase flex items-center gap-1">Featured <span className="material-symbols-outlined text-[14px]">expand_more</span></button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-gutter gap-y-stack-lg">
+                            {products.map(p => (
+                                <Link key={p.id} to={`/product/${p.id}`} className="group">
+                                    <div className="aspect-[3/4] mb-4 border border-outline/10 overflow-hidden relative bg-surface-container-low">
+                                        <img src={p.img1} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={p.name} />
+                                    </div>
+                                    <div className="text-center">
+                                        <h3 className="text-[11px] uppercase tracking-[0.15em] mb-1">{p.name}</h3>
+                                        <p className="text-sm text-on-surface-variant">{p.price}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const ProductPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex flex-col min-h-screen pt-20">
+                    <TopNavBar />
+                    <main className="flex-grow pt-10 pb-stack-lg">
+                        <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 lg:grid-cols-12 gap-gutter lg:gap-margin-desktop items-start">
+                            <div className="lg:col-span-7 flex flex-col gap-2">
+                                <div className="aspect-[3/4] bg-surface-container-low overflow-hidden">
+                                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVK2oXDL66lynESllwEAWZSfiKqUvGSb9-k7W_f7pD64WaLJh9pMitrsihTiHu1rm-jwD5mUYLA2KHCIblaqJVq_TTifj8uzNYMh-rdoDQFk97gQvygLKez7R2tIkXjFag75X_cBJKmRr7g3RjHs35inZ7zQa8POjCVrHf0M_qDEjBbL4W1ZEajsPvUTcqeXUAtwL2bKERYupnmdBk9igAJHkPyQbeIOarKe_9GGyzq6MASVnQ5Un0ew" alt="Lumina" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="aspect-square bg-surface-container-low overflow-hidden"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhyhHqPpuWZegW627iRzUJzkPzCcig7EDADcs7LeC96FdchZ9IAZ9D3py5KgZwi4yoOudPG-fIRRh8b_n7oQTPErYUGLDbZh3dPFIDFJJSWUzLB9hu9D5gUsQFZSisgGNIXGvb6U3R0ITb6z1B4EezFf_NMDffOZMqZaaD5I4nqTh-KE7uvWEHU0pVOO-ZvDhaj9KmvpR8Td57_ppDmv9pkh9SbewaEcroazOA5jXXPc8LPaviyIxQ4A" className="w-full h-full object-cover" /></div>
+                                    <div className="aspect-square bg-surface-container-low overflow-hidden"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEVUWLWICrNlalydXkx5rgfPEBpHgtkGV3Bz2jWGa80owjUrLXzCsPewEEYghgiLgyL1qjaJ0pznN826dcOjauYn9S9MrTZiAFyPIvMmLi2CgKK9m6Xh6bm_w8m3YgIgV1HBz0nODZMoUq6Y2pnRQh0mx9y0zqKhAwCY5z5Nm5BUZz-ThWxa8tkXev0AhaOL44F08oF29-FwLcRU036SlOF3hicbOburEXprQNvD5XMa6tZQzBun0GnA" className="w-full h-full object-cover" /></div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-5 flex flex-col gap-stack-md pt-6 lg:pt-0 sticky top-24">
+                                <div>
+                                    <h1 className="font-display text-4xl mb-4">Lumina Pendant</h1>
+                                    <p className="text-xl text-on-surface-variant">$850</p>
+                                </div>
+                                <p className="text-on-surface-variant leading-relaxed">A study in quiet elegance. The Lumina Pendant captures light through its precision-cut facets, suspended on an ultra-fine chain.</p>
+                                <div className="space-y-6">
+                                    <div>
+                                        <span className="text-[10px] uppercase tracking-widest block mb-3">Material</span>
+                                        <div className="flex gap-4">
+                                            <button className="w-8 h-8 rounded-full border border-primary bg-[#D4AF37] ring-offset-2 ring-1 ring-primary"></button>
+                                            <button className="w-8 h-8 rounded-full border border-outline bg-[#E6E2DB]"></button>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => navigate('/cart')} className="w-full py-4 border border-primary uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Add to Bag</button>
+                                </div>
+                                <div className="border-t border-outline-variant pt-6 space-y-4">
+                                    <details className="group border-b border-outline-variant/30 pb-4" open>
+                                        <summary className="flex justify-between items-center cursor-pointer uppercase text-xs tracking-widest">Details <span className="material-symbols-outlined">expand_more</span></summary>
+                                        <ul className="pt-4 text-sm text-on-surface-variant space-y-2 list-disc list-inside">
+                                            <li>Solid 18k Gold</li>
+                                            <li>1mm diamond-cut cable chain</li>
+                                        </ul>
+                                    </details>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const CartPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex flex-col min-h-screen">
+                    <TopNavBar suppressed />
+                    <main className="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg pt-32">
+                        <header className="mb-stack-lg text-center">
+                            <h1 className="font-display text-4xl mb-2">Shopping Bag</h1>
+                            <p className="text-sm text-on-surface-variant">2 items in your cart</p>
+                        </header>
+                        <div className="flex flex-col lg:flex-row gap-stack-lg lg:gap-gutter">
+                            <div className="lg:w-2/3 flex flex-col gap-10">
+                                <div className="flex gap-6 pb-10 border-b border-outline-variant/30">
+                                    <div className="w-32 h-40 shrink-0 bg-surface-container overflow-hidden">
+                                        <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT-xIERYhb5iAp0dt4bZUcBW-Fc_ymVjrwVq4l8Zvq2Tj6-RJaPnw3DFifzO6iLLAufUOKQerm11GheKoc89D71viHFv7GswceKp3_-28JqeSmc6pptoNe7xrgXl442gA-i4rrIeTeP2fYTm037lkr8Ilnb3ENtAqiyi2iQRyiIUW6dmA3GWdLHxcsc7pg6w_BugZYBlo_lQFzjl4ObgALhTjdbXeFzXeAkGXr7MVTndLeIm-tAgfC9A" />
+                                    </div>
+                                    <div className="flex-grow flex flex-col justify-between">
+                                        <div className="flex justify-between items-start">
+                                            <div><h2 className="font-display text-xl">Lumina Pendant</h2><p className="text-[10px] uppercase text-outline">18k Yellow Gold</p></div>
+                                            <button className="material-symbols-outlined text-outline">close</button>
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <div className="flex border border-outline/20 items-center">
+                                                <button className="px-3 py-1">-</button>
+                                                <span className="px-3">1</span>
+                                                <button className="px-3 py-1">+</button>
+                                            </div>
+                                            <span className="text-lg">$1,250</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aside className="lg:w-1/3 bg-surface-container-low p-8 h-fit border border-outline/10 sticky top-32">
+                                <h3 className="font-display text-xl border-b border-outline/10 pb-4 mb-6">Order Summary</h3>
+                                <div className="space-y-4 text-sm mb-8">
+                                    <div className="flex justify-between"><span>Subtotal</span><span>$1,250</span></div>
+                                    <div className="flex justify-between"><span>Shipping</span><span>Complimentary</span></div>
+                                    <div className="flex justify-between border-t border-outline/10 pt-4 font-bold"><span>Total</span><span>$1,250</span></div>
+                                </div>
+                                <button onClick={() => navigate('/checkout')} className="w-full py-4 bg-primary text-white uppercase tracking-widest text-xs hover:bg-secondary transition-colors">Checkout</button>
+                            </aside>
+                        </div>
+                    </main>
+                    <Footer suppressed />
+                </div>
+            );
+        };
+
+        const CheckoutPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex flex-col min-h-screen">
+                    <header className="py-8 border-b border-outline-variant flex justify-center">
+                        <Link to="/" className="font-display text-3xl">Tvisaa</Link>
+                    </header>
+                    <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg w-full flex flex-col lg:flex-row gap-margin-desktop">
+                        <div className="lg:w-7/12 flex flex-col gap-12">
+                            <section>
+                                <h2 className="font-display text-2xl mb-8">Contact</h2>
+                                <input type="email" placeholder="Email Address" className="w-full border-0 border-b border-primary bg-transparent py-4 focus:ring-0 focus:border-secondary transition-colors mb-4" />
+                            </section>
+                            <section>
+                                <h2 className="font-display text-2xl mb-8">Shipping Address</h2>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <input type="text" placeholder="First Name" className="w-full border-0 border-b border-primary bg-transparent py-4 focus:ring-0" />
+                                    <input type="text" placeholder="Last Name" className="w-full border-0 border-b border-primary bg-transparent py-4 focus:ring-0" />
+                                </div>
+                                <input type="text" placeholder="Address" className="w-full border-0 border-b border-primary bg-transparent py-4 focus:ring-0 mb-4" />
+                            </section>
+                            <button onClick={() => navigate('/')} className="w-full py-4 bg-secondary text-white uppercase tracking-widest">Complete Purchase</button>
+                        </div>
+                        <div className="lg:w-5/12 bg-surface-container-low p-8 border border-outline/10 h-fit">
+                            <h2 className="font-display text-xl mb-6">Summary</h2>
+                            <div className="flex justify-between items-center mb-6">
+                                <div className="flex gap-4">
+                                    <div className="w-12 h-16 bg-surface-container"></div>
+                                    <div><p className="text-xs font-bold uppercase">Lumina Pendant</p><p className="text-[10px] text-outline">Qty: 1</p></div>
+                                </div>
+                                <span className="text-sm">$1,250</span>
+                            </div>
+                            <div className="border-t border-outline/10 pt-4 flex justify-between font-display text-2xl">
+                                <span>Total</span>
+                                <span>$1,250</span>
+                            </div>
+                        </div>
+                    </main>
+                    <footer className="text-center py-8 text-[10px] text-outline uppercase tracking-widest border-t border-outline/10">© 2024 Tvisaa. Secure Checkout.</footer>
+                </div>
+            );
+        };
+
+        const LoginPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex flex-col min-h-screen items-center justify-center bg-surface-container-low px-margin-mobile">
+                    <Link to="/" className="font-display text-4xl mb-12">Tvisaa</Link>
+                    <div className="w-full max-w-[400px] flex flex-col gap-10">
+                        <div className="text-center">
+                            <h1 className="font-display text-3xl mb-2">Sign In</h1>
+                            <p className="text-on-surface-variant">Enter your details to access your atelier.</p>
+                        </div>
+                        <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); navigate('/'); }}>
+                            <input type="email" placeholder="EMAIL ADDRESS" className="w-full bg-transparent border-0 border-b border-outline py-2 text-sm focus:ring-0 focus:border-primary transition-colors" required />
+                            <div className="relative">
+                                <input type="password" placeholder="PASSWORD" className="w-full bg-transparent border-0 border-b border-outline py-2 text-sm focus:ring-0 focus:border-primary transition-colors" required />
+                                <button type="button" className="absolute right-0 bottom-2 text-outline"><span className="material-symbols-outlined text-lg">visibility_off</span></button>
+                            </div>
+                            <button className="w-full py-4 border border-primary uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all mt-4">Sign In</button>
+                        </form>
+                        <div className="flex items-center gap-4">
+                            <div className="h-px bg-outline/20 flex-grow"></div>
+                            <span className="text-[10px] text-outline uppercase">OR</span>
+                            <div className="h-px bg-outline/20 flex-grow"></div>
+                        </div>
+                        <Link to="/register" className="w-full py-4 border border-outline/30 uppercase tracking-widest text-xs text-center hover:border-primary transition-colors">Create Account</Link>
+                    </div>
+                </div>
+            );
+        };
+
+        const RegisterPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex flex-col min-h-screen pt-20">
+                    <TopNavBar suppressed />
+                    <main className="flex-grow flex items-center justify-center px-6 py-stack-lg">
+                        <div className="w-full max-w-[400px] flex flex-col gap-10">
+                            <div className="text-center">
+                                <h1 className="font-display text-3xl mb-2">Create Account</h1>
+                                <p className="text-on-surface-variant">Join Tvisaa to explore bespoke craftsmanship.</p>
+                            </div>
+                            <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); navigate('/'); }}>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input type="text" placeholder="FIRST NAME" className="w-full bg-transparent border-0 border-b border-outline py-2 text-sm focus:ring-0 focus:border-primary" required />
+                                    <input type="text" placeholder="LAST NAME" className="w-full bg-transparent border-0 border-b border-outline py-2 text-sm focus:ring-0 focus:border-primary" required />
+                                </div>
+                                <input type="email" placeholder="EMAIL ADDRESS" className="w-full bg-transparent border-0 border-b border-outline py-2 text-sm focus:ring-0 focus:border-primary" required />
+                                <input type="password" placeholder="PASSWORD" className="w-full bg-transparent border-0 border-b border-outline py-2 text-sm focus:ring-0 focus:border-primary" required />
+                                <label className="flex items-start gap-3 cursor-pointer">
+                                    <input type="checkbox" className="mt-1 border-outline bg-transparent" />
+                                    <span className="text-xs text-on-surface-variant">Subscribe to receive exclusive insights and bespoke offers.</span>
+                                </label>
+                                <button className="w-full py-4 border border-primary uppercase tracking-widest text-xs flex justify-center items-center gap-2 hover:bg-secondary hover:text-white transition-all">
+                                    Create Account
+                                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                </button>
+                            </form>
+                            <p className="text-center text-xs text-on-surface-variant">
+                                Already have an account? <Link to="/login" className="underline font-bold">Sign In</Link>
+                            </p>
+                        </div>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        // --- App Shell ---
+
+        const ScrollToTop = () => {
+            const { pathname } = useLocation();
+            useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+            return null;
+        };
+
+        const App = () => {
+            return (
+                <MemoryRouter>
+                    <ScrollToTop />
+                    <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/collections" element={<CollectionsPage />} />
+                        <Route path="/product/:id" element={<ProductPage />} />
+                        <Route path="/cart" element={<CartPage />} />
+                        <Route path="/checkout" element={<CheckoutPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

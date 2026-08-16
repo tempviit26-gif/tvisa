@@ -16,9 +16,17 @@ class Cart(models.Model):
         db_table = 'carts'
         verbose_name = 'Cart'
         verbose_name_plural = 'Carts'
+        constraints = [
+            models.CheckConstraint(
+                check=(models.Q(user__isnull=False) & models.Q(guest_id__isnull=True)) |
+                      (models.Q(user__isnull=True) & models.Q(guest_id__isnull=False)),
+                name='carts_owner_check'
+            ),
+        ]
 
     def __str__(self):
-        return f'Cart — {self.user.name}'
+        owner = self.user.name if self.user else f"Guest ({self.guest_id})"
+        return f'Cart — {owner}'
 
     @property
     def total_items(self):
@@ -44,6 +52,12 @@ class CartItem(models.Model):
         verbose_name = 'Cart Item'
         verbose_name_plural = 'Cart Items'
         unique_together = ('cart', 'variant')
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(quantity__gt=0),
+                name='cart_items_quantity_check'
+            ),
+        ]
 
     def __str__(self):
         return f'{self.variant} × {self.quantity}'

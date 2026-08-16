@@ -193,6 +193,8 @@ class VerifyOTPView(APIView):
                     guest_cart.save()
             
             # Merge Wishlist
+            existing_product_ids = Wishlist.objects.filter(user=user).values_list('product_id', flat=True)
+            Wishlist.objects.filter(guest_id=guest_id, product_id__in=existing_product_ids).delete()
             Wishlist.objects.filter(guest_id=guest_id).update(user=user, guest_id=None)
 
         # Generate JWT tokens so the user is auto-logged-in
@@ -273,6 +275,8 @@ class LoginView(APIView):
                     guest_cart.save()
             
             # Merge Wishlist
+            existing_product_ids = Wishlist.objects.filter(user=user).values_list('product_id', flat=True)
+            Wishlist.objects.filter(guest_id=guest_id, product_id__in=existing_product_ids).delete()
             Wishlist.objects.filter(guest_id=guest_id).update(user=user, guest_id=None)
 
         refresh = RefreshToken.for_user(user)

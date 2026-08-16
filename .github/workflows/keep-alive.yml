@@ -1,0 +1,24 @@
+name: Keep-Alive Render Ping
+
+on:
+  schedule:
+    # Runs every 10 minutes to prevent Render free-tier spin-down
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-render:
+    name: Ping Render Backend Health Endpoint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send HTTP Request to Health Endpoint
+        run: |
+          echo "Pinging Render backend at https://tvisa-1.onrender.com/health/ ..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" -L "https://tvisa-1.onrender.com/health/")
+          echo "Response HTTP Status: $response"
+          if [ "$response" -eq 200 ] || [ "$response" -eq 301 ] || [ "$response" -eq 302 ]; then
+            echo "Render backend is active!"
+          else
+            echo "Warning: Received unexpected status code $response"
+          fi

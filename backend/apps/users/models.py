@@ -111,6 +111,13 @@ class Address(models.Model):
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
         ordering = ['-is_default', '-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user'],
+                condition=models.Q(is_default=True),
+                name='addresses_one_default_per_user'
+            )
+        ]
 
     def __str__(self):
         return f'{self.full_name}, {self.city} - {self.pincode}'

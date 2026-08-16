@@ -19,6 +19,25 @@ class Wishlist(models.Model):
         verbose_name = 'Wishlist Item'
         verbose_name_plural = 'Wishlist Items'
         ordering = ['-added_at']
+        constraints = [
+            models.CheckConstraint(
+                check=(models.Q(user__isnull=False) & models.Q(guest_id__isnull=True)) |
+                      (models.Q(user__isnull=True) & models.Q(guest_id__isnull=False)),
+                name='wishlists_owner_check'
+            ),
+            models.UniqueConstraint(
+                fields=['user', 'product'],
+                condition=models.Q(user__isnull=False),
+                name='wishlists_user_product_uq'
+            ),
+            models.UniqueConstraint(
+                fields=['guest_id', 'product'],
+                condition=models.Q(guest_id__isnull=False),
+                name='wishlists_guest_product_uq'
+            ),
+        ]
 
     def __str__(self):
-        return f'{self.user.name} ♥ {self.product.name}'
+        owner = self.user.name if self.user else f"Guest ({self.guest_id})"
+        return f'{owner} ♥ {self.product.name}'
+

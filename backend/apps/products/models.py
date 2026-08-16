@@ -118,6 +118,12 @@ class Product(models.Model):
             models.Index(fields=['is_active', 'is_new_arrival', '-updated_at', '-created_at'], name='idx_product_newarrival'),
             models.Index(fields=['is_active', '-created_at'], name='idx_product_active_created'),
         ]
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(discounted_price__isnull=True) | models.Q(discounted_price__lt=models.F('base_price')),
+                name='products_discounted_price_check'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -157,6 +163,12 @@ class ProductVariant(models.Model):
         db_table = 'product_variants'
         verbose_name = 'Product Variant'
         verbose_name_plural = 'Product Variants'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'metal_type', 'size', 'coating'],
+                name='product_variants_combo_uq'
+            )
+        ]
 
     def __str__(self):
         parts = [self.metal_type]
@@ -194,6 +206,13 @@ class ProductImage(models.Model):
         verbose_name = 'Product Image'
         verbose_name_plural = 'Product Images'
         ordering = ['display_order']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product'],
+                condition=models.Q(is_primary=True),
+                name='product_images_one_primary'
+            )
+        ]
 
     def __str__(self):
         return f"{self.product.name} Image"

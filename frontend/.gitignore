@@ -10,6 +10,9 @@ out/
 # ──── Build ────
 build/
 dist/
+.open-next/
+.wrangler/
+.dev.vars
 
 # ──── Environment ────
 .env
